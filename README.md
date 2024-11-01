@@ -1,25 +1,32 @@
 # GLBtoOBJ
 A simple Python script that converts GLB (Binary glTF) files to OBJ files using the trimesh library.
 
-Table of Contents
+### Table of Contents
 
-
-Installation
+* [Installation](#installation)
+* [Installation](#Installation)
+	+ [Install trimesh using pip](#Install_trimesh_using_pip)
+	+ [Clone this repository](#Clone_this_repository)
+  + [Navigate to the cloned directory](#Navigate_to_the_cloned_directory)
+* [Run the script](#Run_the_script)
+* [Conversion Process](#Conversion_Process)
+  
+##  Installation
 To use this script, you'll need to install the required libraries:
 
 trimesh: A Python 3 library for working with three-dimensional meshes. You can install it via pip: pip install trimesh
 Here's a step-by-step guide to installing and setting up the environment:
 
-## Install trimesh using pip
+### Install trimesh using pip
 ```
 pip install trimesh
 ```
 
-## Clone this repository (if you haven't already)
+### Clone this repository
 ```
 git clone https://github.com/your-username/glb-to-obj-converter.git
 ```
-## Navigate into the cloned directory
+### Navigate to the cloned directory
 ```
 cd glb-to-obj-converter
 ```

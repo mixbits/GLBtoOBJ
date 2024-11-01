@@ -3,11 +3,10 @@ A simple Python script that converts GLB (Binary glTF) files to OBJ files using 
 
 ### Table of Contents
 
-* [Installation](#installation)
 * [Installation](#Installation)
 	+ [Install trimesh using pip](#Install_trimesh_using_pip)
 	+ [Clone this repository](#Clone_this_repository)
-  + [Navigate to the cloned directory](#Navigate_to_the_cloned_directory)
+  	+ [Navigate to the cloned directory](#Navigate_to_the_cloned_directory)
 * [Run the script](#Run_the_script)
 * [Conversion Process](#Conversion_Process)
   

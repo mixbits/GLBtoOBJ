@@ -1,13 +1,12 @@
 import os
 import trimesh
 from PIL import Image
-import sys
 
 def glb_to_obj():
     """
     Convert a GLB file to OBJ format using trimesh library.
     Handles multiple meshes within the GLB file and provides error handling.
-    Also exports textures as PNG images if embedded in materials of the GLB file.
+    Also exports textures as PNG images if embedded in materials of the GLB file, saving them directly into the output directory with related names based on the input filename.
     """
     try:
         # Get the directory where the script is running
@@ -28,23 +27,20 @@ def glb_to_obj():
             print(f"Error: File '{input_filename}' does not exist in the current directory.")
             return
 
-        # Define default output filenames
-        obj_output_filename = os.path.splitext(input_filename)[0] + '.obj'
-        texture_dir = os.path.join(directory, 'textures')
+        # Define default output filenames based on input filename without extension
+        base_name = os.path.splitext(input_filename)[0]
         
-        # Create a textures directory if it doesn't exist
-        if not os.path.exists(texture_dir):
-            os.makedirs(texture_dir)
-
-        # Ask the user for output filename if not provided
-        response = input(f"Enter the filename for OBJ file (default is '{obj_output_filename}'): ").strip()
-        obj_output_filename = response if response else obj_output_filename
-
+        obj_output_filename = f"{base_name}.obj"
+        mtl_output_filename = f"{base_name}.mtl"
+        png_output_filename = f"{base_name}.png"
+        
+        # Check if output files already exist
         full_obj_output_path = os.path.join(directory, obj_output_filename)
+        full_mtl_output_path = os.path.join(directory, mtl_output_filename)
+        full_png_output_path = os.path.join(directory, png_output_filename)
 
-        # Check if output file already exists
-        if os.path.exists(full_obj_output_path):
-            response = input(f"'{obj_output_filename}' already exists. Do you want to overwrite it? (y/n): ").lower()
+        if os.path.exists(full_obj_output_path) or os.path.exists(full_mtl_output_path) or os.path.exists(full_png_output_path):
+            response = input("Output files already exist. Do you want to overwrite them? (y/n): ").lower()
             if response != 'y':
                 print("Conversion cancelled.")
                 return
@@ -71,12 +67,12 @@ def glb_to_obj():
         print(f"Converting to {obj_output_filename}...")
         combined_mesh.export(full_obj_output_path, file_type='obj')
         
-        # Verify the output file was created
+        # Verify the output files were created
         if os.path.exists(full_obj_output_path):
-            print(f"Conversion successful! OBJ file saved as '{obj_output_filename}'")
+            print(f"OBJ Conversion successful! File saved as '{obj_output_filename}'")
             print(f"Output location: {full_obj_output_path}")
 
-            # Export textures from materials
+            # Export textures from materials and save them directly into the output directory with related names
             texture_index = 0
             for mesh in scene.geometry.values():
                 if hasattr(mesh, 'visual') and hasattr(mesh.visual, 'material'):
@@ -84,8 +80,8 @@ def glb_to_obj():
                     if material is not None and hasattr(material, 'image'):
                         image = material.image
                         if image is not None:
-                            texture_filename = f"texture_{texture_index}.png"
-                            full_texture_path = os.path.join(texture_dir, texture_filename)
+                            texture_filename = f"{base_name}_texture_{texture_index}.png"
+                            full_texture_path = os.path.join(directory, texture_filename)
                             image.save(full_texture_path)
                             print(f"Texture from material {material} exported as '{texture_filename}'")
                             texture_index += 1

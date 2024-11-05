@@ -1,11 +1,13 @@
 import os
 import trimesh
+from PIL import Image
 import sys
 
 def glb_to_obj():
     """
     Convert a GLB file to OBJ format using trimesh library.
     Handles multiple meshes within the GLB file and provides error handling.
+    Also exports textures as PNG images if embedded in materials of the GLB file.
     """
     try:
         # Get the directory where the script is running
@@ -26,13 +28,23 @@ def glb_to_obj():
             print(f"Error: File '{input_filename}' does not exist in the current directory.")
             return
 
-        # Define the output filename
-        output_filename = os.path.splitext(input_filename)[0] + '.obj'
-        full_output_path = os.path.join(directory, output_filename)
+        # Define default output filenames
+        obj_output_filename = os.path.splitext(input_filename)[0] + '.obj'
+        texture_dir = os.path.join(directory, 'textures')
+        
+        # Create a textures directory if it doesn't exist
+        if not os.path.exists(texture_dir):
+            os.makedirs(texture_dir)
+
+        # Ask the user for output filename if not provided
+        response = input(f"Enter the filename for OBJ file (default is '{obj_output_filename}'): ").strip()
+        obj_output_filename = response if response else obj_output_filename
+
+        full_obj_output_path = os.path.join(directory, obj_output_filename)
 
         # Check if output file already exists
-        if os.path.exists(full_output_path):
-            response = input(f"'{output_filename}' already exists. Do you want to overwrite it? (y/n): ").lower()
+        if os.path.exists(full_obj_output_path):
+            response = input(f"'{obj_output_filename}' already exists. Do you want to overwrite it? (y/n): ").lower()
             if response != 'y':
                 print("Conversion cancelled.")
                 return
@@ -56,13 +68,27 @@ def glb_to_obj():
             combined_mesh = scene
 
         # Export to OBJ format
-        print(f"Converting to {output_filename}...")
-        combined_mesh.export(full_output_path, file_type='obj')
+        print(f"Converting to {obj_output_filename}...")
+        combined_mesh.export(full_obj_output_path, file_type='obj')
         
         # Verify the output file was created
-        if os.path.exists(full_output_path):
-            print(f"Conversion successful! File saved as '{output_filename}'")
-            print(f"Output location: {full_output_path}")
+        if os.path.exists(full_obj_output_path):
+            print(f"Conversion successful! OBJ file saved as '{obj_output_filename}'")
+            print(f"Output location: {full_obj_output_path}")
+
+            # Export textures from materials
+            texture_index = 0
+            for mesh in scene.geometry.values():
+                if hasattr(mesh, 'visual') and hasattr(mesh.visual, 'material'):
+                    material = mesh.visual.material
+                    if material is not None and hasattr(material, 'image'):
+                        image = material.image
+                        if image is not None:
+                            texture_filename = f"texture_{texture_index}.png"
+                            full_texture_path = os.path.join(texture_dir, texture_filename)
+                            image.save(full_texture_path)
+                            print(f"Texture from material {material} exported as '{texture_filename}'")
+                            texture_index += 1
         else:
             print("Error: Failed to create output file.")
 
@@ -70,7 +96,7 @@ def glb_to_obj():
         print(f"An error occurred during the conversion:")
         print(f"Error details: {str(e)}")
         print("\nPlease make sure you have the required libraries installed:")
-        print("pip install trimesh numpy")
+        print("pip install trimesh numpy pillow")
 
 if __name__ == "__main__":
     glb_to_obj()
